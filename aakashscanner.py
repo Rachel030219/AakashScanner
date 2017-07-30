@@ -4,6 +4,22 @@ import telebot
 import sqlite3
 
 bot = telebot.TeleBot("<TOKEN>")
+rules = open("scannerdatabase.txt", "r")
+name_rules = {}
+content_rules = {}
+equal_content_rules = {}
+
+
+for rule in rules.readlines():
+    print(rule)
+    separated_rule = rule.strip().split()
+    print(separated_rule)
+    if separated_rule[0] == "name":
+        name_rules[separated_rule[2]] = separated_rule[1]
+    if separated_rule[0] == "text":
+        content_rules[separated_rule[2]] = separated_rule[1]
+    if separated_rule[0] == "equal_text":
+        equal_content_rules[separated_rule[2]] = separated_rule[1]
 
 
 @bot.message_handler(func=lambda message: "group" in message.chat.type)
@@ -11,29 +27,26 @@ def check_content(message):
     create()
     if message.new_chat_member is not None and\
             (message.new_chat_member.username is None or "AakashScanner_bot" not in message.new_chat_member.username):
-        create()
         user_id = message.new_chat_member.id
         chat_id = message.chat.id
-        if message.new_chat_member.username is not None and "Aakash" in message.new_chat_member.username:
-            plus_possibility(user_id, chat_id, 10)
-        if "Aakash" in message.new_chat_member.first_name:
-            plus_possibility(user_id, chat_id, 5)
-        if message.new_chat_member.last_name is not None and u"🇮🇳" in message.new_chat_member.last_name:
-            plus_possibility(user_id, chat_id, 10)
+        name = message.new_chat_member.first_name
+        if message.new_chat_member.last_name is not None:
+            name += " " + message.new_chat_member.last_name
+        # TODO:根本收不到
+        print(name)
+        for key in name_rules.keys():
+            if key.decode("utf-8") in name:
+                plus_possibility(user_id, chat_id, int(name_rules[key]))
     if message.text is not None:
         user_id = message.from_user.id
         chat_id = message.chat.id
         if check_status(user_id) and read(user_id) >= 50:
             kick_user(user_id, chat_id)
         else:
-            if u"如果你给前总统一秒钟，他会很开心" in message.text:
-                plus_possibility(user_id, chat_id, 15)
-            if u"+1s" == message.text:
-                plus_possibility(user_id, chat_id, 5)
-            if u"666" in message.text and u"233" in message.text:
-                plus_possibility(user_id, chat_id, 15)
-            if u"China" in message.text and u"president" in message.text:
-                plus_possibility(user_id, chat_id, 10)
+            # TODO:识别半角逗号
+            for key in content_rules.keys():
+                if key.decode("utf-8") in message.text:
+                    plus_possibility(user_id, chat_id, int(content_rules[key]))
 
 
 def plus_possibility(user_id, chat_id, value):
@@ -43,6 +56,7 @@ def plus_possibility(user_id, chat_id, value):
         insert(user_id, value)
     if int(read(user_id)) >= 50:
         kick_user(user_id, chat_id)
+    print(read(user_id))
 
 
 def kick_user(user_id, chat_id):
