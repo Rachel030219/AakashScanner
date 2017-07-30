@@ -9,9 +9,9 @@ F**k off, Aakash.
 
 Go to [Getting started](https://github.com/eternnoir/pyTelegramBotAPI#getting-started)
 
-#### 1. Change TOKEN
+#### 1. Configuration
 
-Replace `<TOKEN>` with your own.
+Copy `config.example.py` to `config.py`, then edit it.
 
 #### 2. RUN
 
