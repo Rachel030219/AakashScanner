@@ -3,7 +3,9 @@
 import telebot
 import sqlite3
 
-bot = telebot.TeleBot("<TOKEN>")
+import config
+
+bot = telebot.TeleBot(config.token)
 rules = open("scannerdatabase.txt", "r")
 name_rules = {}
 content_rules = {}
@@ -67,7 +69,7 @@ def kick_user(user_id, chat_id):
 
 
 def check_status(user_id):
-    db = sqlite3.connect('/home/rachel/Bot/data/aakashscanner.db')
+    db = sqlite3.connect(config.sqlite_db)
     create()
     cursor = db.cursor()
     cursor.execute('''SELECT id FROM data''')
@@ -81,7 +83,7 @@ def check_status(user_id):
 
 
 def insert(user_id, possibility):
-    db = sqlite3.connect('/home/rachel/Bot/data/aakashscanner.db')
+    db = sqlite3.connect(config.sqlite_db)
     cursor = db.cursor()
     cursor.execute('''INSERT INTO data(id, possibility) VALUES(?,?)''', (user_id, possibility))
     db.commit()
@@ -89,7 +91,7 @@ def insert(user_id, possibility):
 
 
 def update(user_id, possibility):
-    db = sqlite3.connect('/home/rachel/Bot/data/aakashscanner.db')
+    db = sqlite3.connect(config.sqlite_db)
     cursor = db.cursor()
     cursor.execute('''UPDATE data SET possibility=? WHERE id=? ''', (possibility, user_id))
     db.commit()
@@ -97,7 +99,7 @@ def update(user_id, possibility):
 
 
 def read(user_id):
-    db = sqlite3.connect('/home/rachel/Bot/data/aakashscanner.db')
+    db = sqlite3.connect(config.sqlite_db)
     cursor = db.cursor()
     cursor.execute('''SELECT possibility FROM data WHERE id=? ''', (user_id,))
     message = cursor.fetchone()[0]
@@ -106,7 +108,7 @@ def read(user_id):
 
 
 def create():
-    db = sqlite3.connect('/home/rachel/Bot/data/aakashscanner.db')
+    db = sqlite3.connect(config.sqlite_db)
     cursor = db.cursor()
     if cursor.execute('''SELECT count(*) FROM sqlite_master WHERE type=? AND name=? ''',
                       ("table", "data")).fetchone()[0] is 0:
