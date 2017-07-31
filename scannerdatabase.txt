@@ -4,4 +4,5 @@ text|15|如果你给前总统一秒钟，他会很开心
 text|15|666,233
 text|10|China,president
 text|10|third brother
-equal_text|5|+1s
+text|15|太年轻,有时天真
+equal_text|10|+1s
