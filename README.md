@@ -24,7 +24,7 @@ python aakashscanner.py
 ### Database file format
 
 ```
-type posibility_value regexp
+type|posibility_value|regexp
 ```
 
 #### `type`

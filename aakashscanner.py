@@ -13,9 +13,7 @@ equal_content_rules = {}
 
 
 for rule in rules.readlines():
-    print(rule)
-    separated_rule = rule.strip().split()
-    print(separated_rule)
+    separated_rule = rule.strip().split("|")
     if separated_rule[0] == "name":
         name_rules[separated_rule[2]] = separated_rule[1]
     if separated_rule[0] == "text":
@@ -25,17 +23,15 @@ for rule in rules.readlines():
 
 
 @bot.message_handler(func=lambda message: "group" in message.chat.type)
+@bot.message_handler(content_types=['new_chat_members'])
 def check_content(message):
     create()
-    if message.new_chat_member is not None and\
-            (message.new_chat_member.username is None or "AakashScanner_bot" not in message.new_chat_member.username):
+    if message.new_chat_member is not None and (message.new_chat_member.username is None or "AakashScanner_bot" not in message.new_chat_member.username):
         user_id = message.new_chat_member.id
         chat_id = message.chat.id
         name = message.new_chat_member.first_name
         if message.new_chat_member.last_name is not None:
             name += " " + message.new_chat_member.last_name
-        # TODO:根本收不到
-        print(name)
         for key in name_rules.keys():
             if key.decode("utf-8") in name:
                 plus_possibility(user_id, chat_id, int(name_rules[key]))
@@ -45,10 +41,21 @@ def check_content(message):
         if check_status(user_id) and read(user_id) >= 50:
             kick_user(user_id, chat_id)
         else:
-            # TODO:识别半角逗号
             for key in content_rules.keys():
-                if key.decode("utf-8") in message.text:
-                    plus_possibility(user_id, chat_id, int(content_rules[key]))
+                if "," in key.decode("utf-8"):
+                    keys = key.decode("utf-8").split(",")
+                    match = True
+                    for each in keys:
+                        if each not in message.text and match:
+                            match = False
+                    if match:
+                        plus_possibility(user_id, chat_id, int(content_rules[key]))
+                else:
+                    if key.decode("utf-8") in message.text:
+                        plus_possibility(user_id, chat_id, int(content_rules[key]))
+            for key in equal_content_rules.keys():
+                if key.decode("utf-8") == message.text:
+                    plus_possibility(user_id, chat_id, int(equal_content_rules[key]))
 
 
 def plus_possibility(user_id, chat_id, value):
@@ -58,13 +65,15 @@ def plus_possibility(user_id, chat_id, value):
         insert(user_id, value)
     if int(read(user_id)) >= 50:
         kick_user(user_id, chat_id)
-    print(read(user_id))
 
 
 def kick_user(user_id, chat_id):
-    if bot.kick_chat_member(chat_id, user_id):
-        bot.send_message(chat_id, u"检测到疑似阿三 " + str(user_id) + u"\n已经自动移除")
-    else:
+    try:
+        if bot.kick_chat_member(chat_id, user_id):
+            bot.send_message(chat_id, u"检测到疑似阿三 " + str(user_id) + u"\n已经自动移除")
+        else:
+            bot.send_message(chat_id, u"检测到疑似阿三 " + str(user_id) + u"\n但移除失败")
+    except:
         bot.send_message(chat_id, u"检测到疑似阿三 " + str(user_id) + u"\n请将 bot 设置为管理员来移除")
 
 
