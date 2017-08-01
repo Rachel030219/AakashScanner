@@ -6,7 +6,7 @@ import sqlite3
 import config
 
 bot = telebot.TeleBot(config.token)
-rules = open("scannerdatabase.txt", "r")
+rules = open(config.rule_db, "r")
 name_rules = {}
 content_rules = {}
 equal_content_rules = {}
