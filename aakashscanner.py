@@ -74,7 +74,7 @@ def kick_user(user_id, chat_id):
         else:
             bot.send_message(chat_id, u"检测到疑似阿三 " + str(user_id) + u"\n但移除失败")
     except:
-        bot.send_message(chat_id, u"检测到疑似阿三 " + str(user_id) + u"\n请将 bot 设置为管理员来移除")
+        bot.send_message(chat_id, u"检测到疑似阿三 " + str(user_id) + u"\n请将 bot 设置为管理员来移除，或者取消可疑对象的管理员权限")
 
 
 def check_status(user_id):
